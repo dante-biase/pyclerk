@@ -10,7 +10,7 @@ from pwd import getpwall, getpwnam, getpwuid
 from subprocess import call
 from subprocess import run as __run
 from types import GeneratorType
-from typing import NoReturn
+from typing import NoReturn, Tuple, List
 from zipfile import ZipFile
 
 from psutil import disk_partitions
@@ -184,29 +184,29 @@ def get_kind(of_item: str) -> str:
 		return pc_path.ext(of_item)[1:]
 
 
-def get_size(of_item: str = '.', unit: str = 'by', precision: int = 1) -> tuple:
+def get_size(of_item: str = '.', unit: str = 'by', precision: int = 1) -> Tuple[float, str]:
 	assert_exists(of_item)
 	assert_valid_arg(unit, VALID_UNITS)
 
 	item_full_path = get_full_path(of_item)
 	item_trail = pc_path.trail(item_full_path)
-	size_in_bytes, unit = os_path.getsize(of_item), unit.upper()
+	file_size_in_bytes, unit = os_path.getsize(of_item), unit.upper()
 	if is_dir(item_full_path):
 		for directory, contents in traverse_contents(item_full_path):
 			dir_path = pc_path.merge(item_trail, directory)
-			size_in_bytes += os_path.getsize(of_item)
+			file_size_in_bytes += os_path.getsize(of_item)
 			for file in contents:
 				try:
-					size_in_bytes += os_path.getsize(pc_path.merge(dir_path, file))
+					file_size_in_bytes += os_path.getsize(pc_path.merge(dir_path, file))
 
 				except FileNotFoundError:
 					pass
 
 	if unit == 'AUTO':
-		unit_factor = int(log(size_in_bytes) / log(1024))
+		unit_factor = int(log(file_size_in_bytes) / log(1024))
 		UNIT_CONVERSION_MAP.get(unit_factor, 4)
 
-	converted_size = round(float(size_in_bytes / (1024 ** UNIT_CONVERSION_MAP_REVERSED.get(unit, 'TB'))), precision)
+	converted_size = round(float(file_size_in_bytes / (1024 ** UNIT_CONVERSION_MAP_REVERSED.get(unit, 'TB'))), precision)
 
 	return converted_size, unit
 
@@ -217,7 +217,7 @@ def new_dir(name: str, in_dir: str = '.', mode: str = 'x', hidden: bool = False)
 	return final_path
 
 
-def new_dirs(names: iter, in_dir: str = '.', mode: str = 'x', hidden: bool = False) -> list:
+def new_dirs(names: iter, in_dir: str = '.', mode: str = 'x', hidden: bool = False) -> List[str]:
 	return [new_dir(name, in_dir, mode, hidden) for name in names]
 
 
@@ -227,7 +227,7 @@ def new_file(name: str, in_dir: str = '.', mode: str = 'x', hidden: bool = False
 	return final_path
 
 
-def new_files(names: iter, in_dir: str = '.', mode: str = 'x', hidden: bool = False) -> list:
+def new_files(names: iter, in_dir: str = '.', mode: str = 'x', hidden: bool = False) -> List[str]:
 	return [new_file(name, in_dir, mode, hidden) for name in names]
 
 
@@ -264,11 +264,11 @@ def move(item: str, to_dir: str, mode: str = 'x') -> str:
 	return final_path
 
 
-def move_items(items: iter, to_dir: str, mode: str = 'x') -> list:
+def move_items(items: iter, to_dir: str, mode: str = 'x') -> List[str]:
 	return [move(file_item, to_dir, mode) for file_item in items]
 
 
-def move_contents(of_dir: str, to_dir: str, mode: str = 'x') -> list:
+def move_contents(of_dir: str, to_dir: str, mode: str = 'x') -> List[str]:
 	dir_contents = tuple([pc_path.merge(of_dir, item) for item in get_contents(of_dir)])
 	return move_items(*dir_contents, to_dir=to_dir, mode=mode)
 
@@ -288,11 +288,11 @@ def copy(item, to_dir: str, mode: str = 'x') -> str:
 	return final_path
 
 
-def copy_items(items: iter, to_dir: str, mode: str = 'x') -> list:
+def copy_items(items: iter, to_dir: str, mode: str = 'x') -> List[str]:
 	return [copy(file_item, to_dir, mode) for file_item in items]
 
 
-def copy_contents(of_dir: str, to_dir: str, mode: str = 'x') -> list:
+def copy_contents(of_dir: str, to_dir: str, mode: str = 'x') -> List[str]:
 	dir_contents = tuple([pc_path.merge(of_dir, item) for item in get_contents(of_dir)])
 	return copy_items(*dir_contents, to_dir=to_dir, mode=mode)
 
@@ -301,7 +301,7 @@ def duplicate(item: str) -> str:
 	return copy(item=item, to_dir='.', mode='a')
 
 
-def duplicate_items(item: str, *items: str) -> list:
+def duplicate_items(item: str, *items: str) -> List[str]:
 	return copy_items([item, *items], to_dir='.', mode='a')
 
 
@@ -319,7 +319,7 @@ def extract(zip_file: str, to_dir: str = '.') -> NoReturn:
 		zfile.extractall(to_dir)
 
 
-def get_contents(of_dir: str = '.', include_hidden: bool = True) -> list:
+def get_contents(of_dir: str = '.', include_hidden: bool = True) -> List[str]:
 	contents = os.listdir(of_dir)
 	if not include_hidden:
 		contents = [item for item in contents if not pc_path.is_hidden(item)]
@@ -327,11 +327,11 @@ def get_contents(of_dir: str = '.', include_hidden: bool = True) -> list:
 	return contents
 
 
-def get_subdirs(of_dir: str = '.', include_hidden: bool = True) -> list:
+def get_subdirs(of_dir: str = '.', include_hidden: bool = True) -> List[str]:
 	return list(filter(is_dir, get_contents(of_dir, include_hidden)))
 
 
-def get_subfiles(of_dir: str = '.', include_hidden: bool = True) -> list:
+def get_subfiles(of_dir: str = '.', include_hidden: bool = True) -> List[str]:
 	return list(filter(is_file, get_contents(of_dir, include_hidden)))
 
 
@@ -366,7 +366,7 @@ def get_devices(all_devices: bool = False) -> dict:
 	return devices
 
 
-def get_volumes() -> list:
+def get_volumes() -> List[str]:
 	return get_contents('/Volumes')
 
 
@@ -393,7 +393,7 @@ def traverse_files(of_dir: str = '.', include_hidden: bool = True, skip_empty: b
 		yield directory, files
 
 
-def search(for_name: str, in_dir: str = '.', max_depth: int = INF, similarity: float = 0.5) -> list:
+def search(for_name: str, in_dir: str = '.', max_depth: int = INF, similarity: float = 0.5) -> List[str]:
 	matches = []
 	for directory, contents in traverse_contents(of_dir=in_dir, max_depth=max_depth, skip_empty=True):
 		for item in contents:
@@ -413,7 +413,7 @@ def find(item_name: str, in_dir: str = '.', max_depth: int = INF) -> str:
 				return pc_path.cat(directory, item)
 
 
-def find_all(items_with_name: str, in_dir: str = '.', max_depth: int = INF) -> list:
+def find_all(items_with_name: str, in_dir: str = '.', max_depth: int = INF) -> List[str]:
 	matches = []
 	items_with_name = items_with_name.lower()
 	for directory, contents in traverse_contents(of_dir=in_dir, max_depth=max_depth, skip_empty=True):
@@ -476,19 +476,19 @@ def get_user_id(from_user_name: str) -> int:
 	return getpwnam(from_user_name).pw_uid
 
 
-def get_all_user_names() -> list:
+def get_all_user_names() -> List[str]:
 	return _sort_accounts([user.pw_name for user in getpwall()])
 
 
-def get_all_user_ids() -> list:
+def get_all_user_ids() -> List[int]:
 	return list(set([get_user_id(from_user_name=user_name) for user_name in get_all_user_names()]))
 
 
-def get_all_users() -> list:
+def get_all_users() -> List[Tuple[str, int]]:
 	return [(user_name, get_user_id(from_user_name=user_name)) for user_name in get_all_user_names()]
 
 
-def get_memberships(of_user: str or int) -> list:
+def get_memberships(of_user: str or int) -> List[str]:
 	if type(of_user) == int:
 		of_user = get_user_name(of_user)
 
@@ -503,34 +503,34 @@ def get_group_id(from_group_name: str) -> int:
 	return getgrnam(from_group_name).gr_gid
 
 
-def get_all_group_names() -> list:
+def get_all_group_names() -> List[str]:
 	return _sort_accounts([group.gr_name for group in getgrall()])
 
 
-def get_all_group_ids() -> list:
+def get_all_group_ids() -> List[int]:
 	return list(set([get_group_id(from_group_name=group_name) for group_name in get_all_group_names()]))
 
 
-def get_all_groups() -> list:
+def get_all_groups() -> List[Tuple[str, int]]:
 	return [(group_name, get_group_id(from_group_name=group_name)) for group_name in get_all_group_names()]
 
 
-def get_members(of_group: str or int) -> list:
+def get_members(of_group: str or int) -> List[str]:
 	if type(of_group) == int:
 		of_group = get_group_name(from_group_id=of_group)
 
 	return getgrnam(of_group).gr_mem
 
 
-def get_all_account_names() -> list:
+def get_all_account_names() -> List[str]:
 	return _sort_accounts(get_all_user_names() + get_all_group_names())
 
 
-def get_all_account_ids() -> list:
+def get_all_account_ids() -> List[int]:
 	return list(set(get_all_user_ids()) | set(get_all_group_ids()))
 
 
-def get_all_accounts() -> list:
+def get_all_accounts() -> List[str]:
 	return _sort_accounts(get_all_users() + get_all_groups())
 
 
@@ -644,7 +644,7 @@ def _change_item_perms(of_item: str, to_perm: Permissions, for_party: Parties) -
 	os.chmod(of_item, (current_perms & ~party_mask) | new_perm)
 
 
-def _sort_accounts(accounts: list) -> list:
+def _sort_accounts(accounts: list) -> List[str]:
 	return sorted(set(accounts), key=lambda account: (account[0].startswith('_'), account))
 
 
