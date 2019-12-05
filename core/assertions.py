@@ -1,63 +1,64 @@
 from os.path import isdir, isfile, exists
 from pathlib import Path
+from typing import NoReturn
 
 from core.exceptions import NotAFileError, IsAFileError, IllegalArgumentError
 from core.path import is_in_path
 
 
-def assert_true(*conditions, else_raise, msg):
-    if any(condition is False for condition in conditions):
-        raise else_raise(msg)
+def assert_true(*tests, else_raise: Exception, error_message: str):
+    if any(test is False for test in tests):
+        raise else_raise(error_message)
 
 
-def assert_false(*conditions, else_raise, msg):
-    if any(condition is False for condition in conditions):
-        raise else_raise(msg)
+def assert_false(*tests, else_raise: Exception, error_message: str):
+    if any(test is False for test in tests):
+        raise else_raise(error_message)
 
 
-def assert_exists(path: str, error_msg=None) -> None:
+def assert_exists(path: str, error_message: str or None = None) -> NoReturn:
     if not exists(path):
-        raise FileNotFoundError(error_msg)
+        raise FileNotFoundError(error_message)
 
 
-def assert_not_exists(path: str, error_msg=None) -> None:
+def assert_not_exists(path: str, error_message: str or None = None) -> NoReturn:
     if exists(path):
-        raise FileExistsError(error_msg)
+        raise FileExistsError(error_message)
 
 
-def assert_is_dir(path: str, error_msg=None) -> None:
+def assert_is_dir(path: str, error_message: str or None = None) -> NoReturn:
     if not isdir(path):
-        raise NotADirectoryError(error_msg)
+        raise NotADirectoryError(error_message)
 
 
-def assert_not_dir(path: str, error_msg=None) -> None:
+def assert_not_dir(path: str, error_message: str or None = None) -> NoReturn:
     if isdir(path):
-        raise IsADirectoryError(error_msg)
+        raise IsADirectoryError(error_message)
 
 
-def assert_is_file(path: str, error_msg=None) -> None:
+def assert_is_file(path: str, error_message: str or None = None) -> NoReturn:
     if not isfile(path):
-        raise NotAFileError(error_msg)
+        raise NotAFileError(error_message)
 
 
-def assert_not_file(path: str, error_msg=None) -> None:
+def assert_not_file(path: str, error_message: str or None = None) -> NoReturn:
     if isfile(path):
-        raise IsAFileError(error_msg)
+        raise IsAFileError(error_message)
 
 
-def assert_has_ext(file_path: str, error_msg=None) -> None:
+def assert_has_ext(file_path: str, error_message: str or None = None) -> NoReturn:
     if Path(file_path).stem == '':
-        raise IllegalArgumentError(error_msg)
+        raise IllegalArgumentError(error_message)
 
 
-def assert_in_path(item_name: str, path=None, error_msg=None) -> None:
+def assert_in_path(item_name: str, path: str or None = None, error_message: str or None = None) -> NoReturn:
     if not is_in_path(item_name, path):
-        raise FileNotFoundError(error_msg)
+        raise FileNotFoundError(error_message)
 
 
-def assert_valid_arg(supplied, possible_values: set, error_msg=None) -> None:
-    if supplied not in possible_values:
-        raise IllegalArgumentError(error_msg)
+def assert_valid_arg(supplied_argument: str, possible_arguments: set, error_message: str or None = None) -> NoReturn:
+    if supplied_argument not in possible_arguments:
+        raise IllegalArgumentError(error_message)
 
 
 __all__ = [
