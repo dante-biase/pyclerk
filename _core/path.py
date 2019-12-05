@@ -1,6 +1,7 @@
 from os import path as os_path
 from pathlib import Path as __Path
 from re import match, search, sub
+from typing import Tuple
 
 from _core.exceptions import IllegalArgumentError
 from .constants import CIPC, OPERATING_SYSTEM
@@ -215,7 +216,7 @@ def change_ext(of_file: str, new_ext: str) -> str:
 
 
 def increment_base(path: str) -> str:
-	path_trail, path_base, path_ext = trail(path), basename(path), ext(path)
+	path_trail, path_base, path_ext = deconstruct(path)
 	copy_pattern = r' \d+$'
 	previous_copy_number = search(copy_pattern, path_base)
 	if previous_copy_number:
@@ -226,6 +227,10 @@ def increment_base(path: str) -> str:
 
 	new_path = cat(path_trail, new_base + path_ext)
 	return new_path
+
+
+def deconstruct(path: str) -> Tuple[str, str, str]:
+	return trail(path), basename(path), ext(path)
 
 
 def is_hidden(path: str) -> bool:
