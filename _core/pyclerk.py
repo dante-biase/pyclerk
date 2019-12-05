@@ -206,7 +206,8 @@ def get_size(of_item: str = '.', unit: str = 'by', precision: int = 1) -> Tuple[
 		unit_factor = int(log(file_size_in_bytes) / log(1024))
 		UNIT_CONVERSION_MAP.get(unit_factor, 4)
 
-	converted_size = round(float(file_size_in_bytes / (1024 ** UNIT_CONVERSION_MAP_REVERSED.get(unit, 'TB'))), precision)
+	converted_size = round(float(file_size_in_bytes / (1024 ** UNIT_CONVERSION_MAP_REVERSED.get(unit, 'TB'))),
+	                       precision)
 
 	return converted_size, unit
 
@@ -573,7 +574,6 @@ def _preprocess(item: str, destination: str, mode: str, make_hidden: bool = Fals
 
 def _generate_contents(of_dir: str, include_hidden: bool, skip_empty: bool, max_depth: int or float,
                        ignore_errors: bool) -> GeneratorType:
-
 	def _content_generator(_of_dir: str, _include_hidden: bool, _skip_empty: bool, _max_depth: int,
 	                       _ignore_errors: bool) -> GeneratorType:
 		dir_trail = pc_path.trail(_of_dir) + '/'
