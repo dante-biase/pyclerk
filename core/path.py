@@ -29,8 +29,8 @@ def reorient(path: str) -> str:
 	return path
 
 
-def merge(path1, path2, *paths) -> str:
-	merged = os_path.join(path1.strip(), path2.strip())
+def merge(path1: str, path2: str, *paths: str) -> str:
+	merged = os_path.join(*path1.strip(), path2.strip())
 	if not merged == '/':
 		merged = merged.rstrip('/')
 
@@ -44,7 +44,7 @@ def cat(path1: str, path2: str, *paths: str) -> str:
 	return cat(catted, *paths) if paths else catted
 
 
-def join(subpaths: list) -> str:
+def join(*subpaths: str) -> str:
 	subpaths = [subpath for subpath in subpaths if subpath != '']
 	return cat(*tuple(subpaths)) if len(subpaths) != 1 else cleanup(subpaths[0])
 
@@ -64,7 +64,7 @@ def bisect(path: str, at_index: int or str = -1) -> tuple:
 		raise IllegalArgumentError()
 
 	dirs = split(path)
-	return join(dirs[:at_index]), join(dirs[at_index:])
+	return join(*dirs[:at_index]), join(*dirs[at_index:])
 
 
 def strip(subpath: str, from_path: str) -> str:
@@ -95,14 +95,14 @@ def replace(subpath: str, with_path: str, in_path: str) -> str:
 	chopped_path = in_path.split(subpath)
 	chopped_path.insert(1, with_path)
 
-	new_path = join(chopped_path)
+	new_path = join(*chopped_path)
 	return new_path
 
 
 def insert(subpath: str, at_index: int or str, in_path: str) -> str:
 	split_path = split(in_path)
 	split_path.insert(at_index, subpath)
-	return join(split_path)
+	return join(*split_path)
 
 
 def append(subpath: str, to_path: str) -> str:
@@ -115,7 +115,7 @@ def pop(path, at_index: int = -1) -> str:
 
 	path = split(path)
 	path.pop(at_index)
-	return join(path)
+	return join(*path)
 
 
 def ltrim(path: str, by: int = 1) -> str:
@@ -156,7 +156,7 @@ def subpath(of_path: str, start: int or str, end: str or None = None) -> str:
 	if type(end) == str:
 		end = index(end, in_path=of_path)
 
-	return join(split(of_path)[start:end])
+	return join(*split(of_path)[start:end])
 
 
 def depth(of_path: str) -> int:
