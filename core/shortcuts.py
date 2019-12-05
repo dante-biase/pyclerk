@@ -1,9 +1,9 @@
 from pathlib import Path as _Path
-from core.constants import BehaviorBlocker, OPERATING_SYSTEM
+from core.constants import ClassBehaviorBlocker, OPERATING_SYSTEM
 
 
 class Shortcuts:
-	__metaclass__ = BehaviorBlocker
+	__metaclass__ = ClassBehaviorBlocker
 
 	HOME = str(_Path().home())
 	if OPERATING_SYSTEM == 'Windows':

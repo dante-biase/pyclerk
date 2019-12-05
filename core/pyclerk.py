@@ -184,7 +184,7 @@ def get_kind(of_item: str) -> str:
 		return pc_path.ext(of_item)[1:]
 
 
-def get_size(of_item: str = '.', unit: str = 'b', precision: int = 1) -> tuple:
+def get_size(of_item: str = '.', unit: str = 'by', precision: int = 1) -> tuple:
 	assert_exists(of_item)
 	assert_valid_arg(unit, VALID_UNITS)
 
@@ -413,12 +413,12 @@ def find(item_name: str, in_dir: str = '.', max_depth: int = INF) -> str:
 				return pc_path.cat(directory, item)
 
 
-def find_all(for_name: str, in_dir: str = '.', max_depth: int = INF) -> list:
+def find_all(items_with_name: str, in_dir: str = '.', max_depth: int = INF) -> list:
 	matches = []
-	for_name = for_name.lower()
+	items_with_name = items_with_name.lower()
 	for directory, contents in traverse_contents(of_dir=in_dir, max_depth=max_depth, skip_empty=True):
 		for item in contents:
-			if item.lower() == for_name:
+			if item.lower() == items_with_name:
 				matches.append(
 						pc_path.cat(directory, item)
 				)
@@ -573,10 +573,6 @@ def _preprocess(item: str, destination: str, mode: str, make_hidden: bool = Fals
 
 def _generate_contents(of_dir: str, include_hidden: bool, skip_empty: bool, max_depth: int or float,
                        ignore_errors: bool) -> GeneratorType:
-	if of_dir == '.':
-		of_dir = get_full_path(of_dir)
-	else:
-		assert_is_dir(of_dir)
 
 	def _content_generator(_of_dir: str, _include_hidden: bool, _skip_empty: bool, _max_depth: int,
 	                       _ignore_errors: bool) -> GeneratorType:
@@ -598,6 +594,11 @@ def _generate_contents(of_dir: str, include_hidden: bool, skip_empty: bool, max_
 			except PermissionError:
 				if not _ignore_errors:
 					raise PermissionError()
+
+	if of_dir == '.':
+		of_dir = get_full_path(of_dir)
+	else:
+		assert_is_dir(of_dir)
 
 	return _content_generator(
 			_of_dir=of_dir,
@@ -638,7 +639,7 @@ def _change_perms(of_item: str, to_perm: Permissions, for_party: Parties, recurs
 
 def _change_item_perms(of_item: str, to_perm: Permissions, for_party: Parties) -> NoReturn:
 	current_perms = stat.S_IMODE(os.stat(of_item).st_mode)
-	party_mask = PERMISSION_MASKS[for_party]
+	party_mask = PERMISSION_BIT_MASKS[for_party]
 	new_perm = PERMISSION_MODES[for_party][to_perm]
 	os.chmod(of_item, (current_perms & ~party_mask) | new_perm)
 

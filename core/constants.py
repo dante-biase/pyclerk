@@ -7,10 +7,10 @@ INF = _inf
 
 VALID_MODES = {'o', 'a', 'x'}
 
-VALID_UNITS = {'auto', 'b', 'kb', 'mb', 'gb', 'tb'}
+VALID_UNITS = {'auto', 'by', 'kb', 'mb', 'gb', 'tb'}
 
 UNIT_CONVERSION_MAP = {
-		0: 'B',
+		0: 'BY',
 		1: 'KB',
 		2: 'MB',
 		3: 'GB',
@@ -22,7 +22,7 @@ UNIT_CONVERSION_MAP_REVERSED = {v: k for k, v in UNIT_CONVERSION_MAP.items()}
 CIPC = ':NUL:'
 
 
-class BehaviorBlocker:
+class ClassBehaviorBlocker:
 
 	def __setattr__(self, key, value):
 		return

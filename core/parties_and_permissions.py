@@ -3,11 +3,11 @@ from stat import (
 	S_IRGRP, S_IROTH, S_IRUSR, S_IRWXG, S_IRWXO, S_IRWXU, S_IWGRP, S_IWOTH, S_IWUSR, S_IXGRP, S_IXOTH, S_IXUSR
 )
 
-from core.constants import BehaviorBlocker
+from core.constants import ClassBehaviorBlocker
 
 
 class Parties(Enum):
-	__metaclass__ = BehaviorBlocker
+	__metaclass__ = ClassBehaviorBlocker
 
 	USER = 0
 	GROUP = 1
@@ -20,7 +20,7 @@ class Parties(Enum):
 
 
 class Permissions:
-	__metaclass__ = BehaviorBlocker
+	__metaclass__ = ClassBehaviorBlocker
 
 	NO_ACCESS = 'No access'
 	READ_ONLY = 'Read only'
@@ -67,7 +67,7 @@ PERMISSION_MODES = {
 
 }
 
-PERMISSION_MASKS = {
+PERMISSION_BIT_MASKS = {
 		Parties.USER  : S_IRWXU,
 		Parties.GROUP : S_IRWXG,
 		Parties.OTHERS: S_IRWXO,
