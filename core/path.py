@@ -109,7 +109,7 @@ def append(subpath: str, to_path: str) -> str:
 	return cat(to_path, subpath)
 
 
-def pop(path, at_index=-1) -> str:
+def pop(path, at_index: int = -1) -> str:
 	if not abs(at_index) <= depth(path):
 		raise IllegalArgumentError()
 
@@ -118,11 +118,11 @@ def pop(path, at_index=-1) -> str:
 	return join(path)
 
 
-def ltrim(path: str, by=1) -> str:
+def ltrim(path: str, by: int = 1) -> str:
 	return bisect(path, by)[1]
 
 
-def rtrim(path: str, by=1) -> str:
+def rtrim(path: str, by: int = 1) -> str:
 	return bisect(path, -by)[0]
 
 
@@ -145,12 +145,12 @@ def basename(of_path: str) -> str:
 	return __Path(of_path).stem
 
 
-def ext(file_path: str) -> str:
-	file_ext = __Path(file_path).suffix
+def ext(of_file_path: str) -> str:
+	file_ext = __Path(of_file_path).suffix
 	return file_ext if file_ext != '' else None
 
 
-def subpath(of_path: str, start: int or str, end=None) -> str:
+def subpath(of_path: str, start: int or str, end: str or None = None) -> str:
 	if type(start) == str:
 		start = index(start, in_path=of_path)
 	if type(end) == str:
