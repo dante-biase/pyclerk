@@ -67,6 +67,7 @@ def go_back() -> str:
 	else:
 		return get_cwd()
 
+
 def show(dir_path: str = '.') -> NoReturn:
 	call('open {directory}'.format(directory=dir_path), shell=True)
 
@@ -106,8 +107,8 @@ def is_in_path(item: str) -> bool:
 	return pc_path.is_in_path(item, os.getcwd())
 
 
-def item_in_dir(item_name: str, dir_path='.', check_enclosing=False) -> bool:
-	if check_enclosing:
+def item_in_dir(item_name: str, dir_path: str = '.', check_subfolders: bool = False) -> bool:
+	if check_subfolders:
 		return bool(find(item_name, in_dir=dir_path))
 	else:
 		return item_name.lower() in [file.lower() for file in get_contents(of_dir=dir_path)]
@@ -142,9 +143,9 @@ def change_ext(of_file: str, new_ext: str) -> str:
 	return rename(item=of_file, to=new_path)
 
 
-def get_full_path(item: str) -> str:
-	assert_exists(item)
-	return str(Path(item).resolve())
+def get_full_path(of_item: str) -> str:
+	assert_exists(of_item)
+	return str(Path(of_item).resolve())
 
 
 def get_root(of_path: str) -> str:
@@ -152,19 +153,19 @@ def get_root(of_path: str) -> str:
 	return pc_path.root(of_path)
 
 
-def get_trail(path: str) -> str:
-	full_path = get_full_path(path)
+def get_trail(of_path: str) -> str:
+	full_path = get_full_path(of_path)
 	return pc_path.trail(full_path)
 
 
-def get_base(path: str) -> str:
-	assert_exists(path)
-	return pc_path.base(path)
+def get_base(of_path: str) -> str:
+	assert_exists(of_path)
+	return pc_path.base(of_path)
 
 
-def get_basename(path: str) -> str:
-	assert_exists(path)
-	return pc_path.basename(path)
+def get_basename(of_path: str) -> str:
+	assert_exists(of_path)
+	return pc_path.basename(of_path)
 
 
 def get_ext(file_path: str) -> str:
@@ -181,7 +182,7 @@ def get_kind(item: str) -> str:
 		return pc_path.ext(item)[1:]
 
 
-def get_size(of_item: str = '.', unit='b', precision=1) -> tuple:
+def get_size(of_item: str = '.', unit: str = 'b', precision: int = 1) -> tuple:
 	assert_exists(of_item)
 	assert_valid_arg(unit, VALID_UNITS)
 
@@ -208,23 +209,23 @@ def get_size(of_item: str = '.', unit='b', precision=1) -> tuple:
 	return converted_size, unit
 
 
-def new_dir(name: str, in_dir='.', mode: str = 'x', hidden=False) -> str:
+def new_dir(name: str, in_dir: str = '.', mode: str = 'x', hidden: bool = False) -> str:
 	final_path = _preprocess(item=name, destination=in_dir, mode=mode, make_hidden=hidden)
 	os.mkdir(final_path)
 	return final_path
 
 
-def new_dirs(names: iter, in_dir='.', mode: str = 'x', hidden=False) -> list:
+def new_dirs(names: iter, in_dir: str = '.', mode: str = 'x', hidden: bool = False) -> list:
 	return [new_dir(name, in_dir, mode, hidden) for name in names]
 
 
-def new_file(name: str, in_dir='.', mode: str = 'x', hidden=False) -> str:
+def new_file(name: str, in_dir: str = '.', mode: str = 'x', hidden: bool = False) -> str:
 	final_path = _preprocess(item=name, destination=in_dir, mode=mode, make_hidden=hidden)
 	open(final_path, 'x').close()
 	return final_path
 
 
-def new_files(names: iter, in_dir='.', mode: str = 'x', hidden=False) -> list:
+def new_files(names: iter, in_dir: str = '.', mode: str = 'x', hidden: bool = False) -> list:
 	return [new_file(name, in_dir, mode, hidden) for name in names]
 
 
@@ -316,7 +317,7 @@ def extract(zip_file: str, to_dir: str = '.') -> NoReturn:
 		zfile.extractall(to_dir)
 
 
-def get_contents(of_dir='.', include_hidden=True) -> list:
+def get_contents(of_dir: str = '.', include_hidden: bool = True) -> list:
 	contents = os.listdir(of_dir)
 	if not include_hidden:
 		contents = [item for item in contents if not pc_path.is_hidden(item)]
@@ -324,27 +325,30 @@ def get_contents(of_dir='.', include_hidden=True) -> list:
 	return contents
 
 
-def get_subdirs(of_dir='.', include_hidden=True) -> list:
+def get_subdirs(of_dir: str = '.', include_hidden: bool = True) -> list:
 	return list(filter(is_dir, get_contents(of_dir, include_hidden)))
 
 
-def get_subfiles(of_dir='.', include_hidden=True) -> list:
+def get_subfiles(of_dir: str = '.', include_hidden: bool = True) -> list:
 	return list(filter(is_file, get_contents(of_dir, include_hidden)))
 
 
-def get_all_contents(of_dir='.', include_hidden=True, skip_empty=False, max_depth=INF, ignore_errors=False) -> list:
+def get_all_contents(of_dir: str = '.', include_hidden: bool = True, skip_empty: bool = False, max_depth: int = INF,
+                     ignore_errors: bool = False) -> list:
 	return list(traverse_contents(of_dir, include_hidden, skip_empty, max_depth, ignore_errors))
 
 
-def get_all_subdirs(of_dir='.', include_hidden=True, skip_empty=False, max_depth=INF, ignore_errors=False) -> list:
+def get_all_subdirs(of_dir: str = '.', include_hidden: bool = True, skip_empty: bool = False, max_depth: int = INF,
+                    ignore_errors: bool = False) -> list:
 	return list(traverse_subdirs(of_dir, include_hidden, skip_empty, max_depth, ignore_errors))
 
 
-def get_all_files(of_dir='.', include_hidden=True, skip_empty=False, max_depth=INF, ignore_errors=False) -> list:
+def get_all_files(of_dir: str = '.', include_hidden: bool = True, skip_empty: bool = False, max_depth: int = INF,
+                  ignore_errors: bool = False) -> list:
 	return list(traverse_files(of_dir, include_hidden, skip_empty, max_depth, ignore_errors))
 
 
-def get_devices(all_devices=False) -> dict:
+def get_devices(all_devices: bool = False) -> dict:
 	devices = {}
 	for device in disk_partitions(all_devices):
 		data = device._asdict()
@@ -364,29 +368,30 @@ def get_volumes() -> list:
 	return get_contents('/Volumes')
 
 
-def traverse(of_dir='.', include_hidden=True, skip_empty=False, max_depth=INF, ignore_errors=False) -> GeneratorType:
+def traverse(of_dir: str = '.', include_hidden: bool = True, skip_empty: bool = False, max_depth: int = INF,
+             ignore_errors: bool = False) -> GeneratorType:
 	return _generate_contents(of_dir, include_hidden, skip_empty, max_depth, ignore_errors)
 
 
-def traverse_contents(of_dir='.', include_hidden=True, skip_empty=False, max_depth=INF, ignore_errors=False) -> GeneratorType:
-
+def traverse_contents(of_dir: str = '.', include_hidden: bool = True, skip_empty: bool = False, max_depth: int = INF,
+                      ignore_errors: bool = False) -> GeneratorType:
 	for directory, subdirs, files in _generate_contents(of_dir, include_hidden, skip_empty, max_depth, ignore_errors):
 		yield directory, subdirs + files
 
 
-def traverse_subdirs(of_dir='.', include_hidden=True, skip_empty=False, max_depth=INF, ignore_errors=False) -> GeneratorType:
-
+def traverse_subdirs(of_dir: str = '.', include_hidden: bool = True, skip_empty: bool = False, max_depth: int = INF,
+                     ignore_errors: bool = False) -> GeneratorType:
 	for directory, subdirs, files in _generate_contents(of_dir, include_hidden, skip_empty, max_depth, ignore_errors):
 		yield directory, subdirs
 
 
-def traverse_files(of_dir='.', include_hidden=True, skip_empty=False, max_depth=INF, ignore_errors=False) -> GeneratorType:
-
+def traverse_files(of_dir: str = '.', include_hidden: bool = True, skip_empty: bool = False, max_depth: int = INF,
+                   ignore_errors: bool = False) -> GeneratorType:
 	for directory, subdirs, files in _generate_contents(of_dir, include_hidden, skip_empty, max_depth, ignore_errors):
 		yield directory, files
 
 
-def search(for_name: str, in_dir='.', max_depth=INF, similarity=0.5) -> list:
+def search(for_name: str, in_dir: str = '.', max_depth: int = INF, similarity=0.5) -> list:
 	matches = []
 	for directory, contents in traverse_contents(of_dir=in_dir, max_depth=max_depth, skip_empty=True):
 		for item in contents:
@@ -398,7 +403,7 @@ def search(for_name: str, in_dir='.', max_depth=INF, similarity=0.5) -> list:
 	return matches
 
 
-def find(item_name: str, in_dir='.', max_depth=INF) -> str:
+def find(item_name: str, in_dir: str = '.', max_depth: int = INF) -> str:
 	item_name = item_name.lower()
 	for directory, contents in traverse_contents(of_dir=in_dir, max_depth=max_depth, skip_empty=True):
 		for item in contents:
@@ -406,7 +411,7 @@ def find(item_name: str, in_dir='.', max_depth=INF) -> str:
 				return pc_path.cat(directory, item)
 
 
-def find_all(for_name: str, in_dir='.', max_depth=INF) -> list:
+def find_all(for_name: str, in_dir: str = '.', max_depth: int = INF) -> list:
 	matches = []
 	for_name = for_name.lower()
 	for directory, contents in traverse_contents(of_dir=in_dir, max_depth=max_depth, skip_empty=True):
@@ -437,11 +442,12 @@ def check_all_perms(of_item: str) -> dict:
 	return perms
 
 
-def change_perms(of_item: str, to_perm: Permissions, for_party: Parties = Parties.USER, r=False) -> NoReturn:
+def change_perms(of_item: str, to_perm: Permissions, for_party: Parties = Parties.USER,
+                 recursively: bool = False) -> NoReturn:
 	if to_perm == Permissions.MIXED:
 		raise IllegalArgumentError()
 
-	_change_perms(of_item, to_perm, for_party, r)
+	_change_perms(of_item, to_perm, for_party, recursively)
 
 
 def check_owner(of_item: str):
@@ -519,7 +525,7 @@ def get_all_account_names() -> list:
 
 
 def get_all_account_ids() -> list:
-	return list(get_all_user_ids() | get_all_group_ids())
+	return list(set(get_all_user_ids()) | set(get_all_group_ids()))
 
 
 def get_all_accounts() -> list:
@@ -541,7 +547,7 @@ def get_groups_and_members() -> dict:
 '''
 
 
-def _preprocess(item: str, destination: str, mode: str, make_hidden=False) -> str:
+def _preprocess(item: str, destination: str, mode: str, make_hidden: bool = False) -> str:
 	assert_valid_arg(mode, VALID_MODES)
 	destination = str(Path(destination).resolve())
 	item_base = pc_path.base(item)
@@ -565,13 +571,13 @@ def _preprocess(item: str, destination: str, mode: str, make_hidden=False) -> st
 
 def _generate_contents(of_dir: str, include_hidden: bool, skip_empty: bool, max_depth: int or float,
                        ignore_errors: bool) -> GeneratorType:
-
 	if of_dir == '.':
 		of_dir = get_full_path(of_dir)
 	else:
 		assert_is_dir(of_dir)
 
-	def _content_generator(_of_dir: str, _include_hidden: bool, _skip_empty: bool, _max_depth: int, _ignore_errors: bool) -> GeneratorType:
+	def _content_generator(_of_dir: str, _include_hidden: bool, _skip_empty: bool, _max_depth: int,
+	                       _ignore_errors: bool) -> GeneratorType:
 		dir_trail = pc_path.trail(_of_dir) + '/'
 
 		for directory, subdirectories, files in os.walk(_of_dir):
@@ -617,10 +623,10 @@ def _check_perms(of_party: Parties, for_item: str) -> str:
 		return Permissions.NO_ACCESS
 
 
-def _change_perms(of_item: str, to_perm: Permissions, for_party: Parties, r: bool) -> NoReturn:
+def _change_perms(of_item: str, to_perm: Permissions, for_party: Parties, recursively: bool) -> NoReturn:
 	_change_item_perms(of_item, to_perm, for_party)
 
-	if r and os_path.isdir(of_item):
+	if recursively and os_path.isdir(of_item):
 		for directory, contents in os.walk(of_item):
 			_change_item_perms(of_item=directory, to_perm=to_perm, for_party=for_party)
 			for item in contents:
@@ -638,7 +644,6 @@ def _sort_accounts(accounts: list) -> list:
 	return sorted(set(accounts), key=lambda account: (account[0].startswith('_'), account))
 
 
-
 __all__ = ['run', 'get_os', 'get_cwd', 'get_cpd', 'go_to', 'step_back', 'go_back', 'show',
            'already_exists',
            'is_file', 'is_dir', 'is_hidden', 'is_alias', 'is_empty', 'has_ext', 'is_in_path', 'item_in_dir', 'hide',
@@ -649,7 +654,8 @@ __all__ = ['run', 'get_os', 'get_cwd', 'get_cpd', 'go_to', 'step_back', 'go_back
            'get_subdirs', 'get_subfiles', 'get_all_contents', 'get_all_subdirs', 'get_all_files', 'get_devices',
            'get_volumes', 'traverse', 'traverse_contents', 'traverse_subdirs', 'traverse_files', 'search', 'find',
            'find_all', 'check_perms', 'check_all_perms', 'change_perms', 'check_owner', 'change_owner', 'get_user_name',
-           'get_user_id', 'get_all_user_names', 'get_all_user_ids', 'get_all_users', 'get_memberships', 'get_group_name',
+           'get_user_id', 'get_all_user_names', 'get_all_user_ids', 'get_all_users', 'get_memberships',
+           'get_group_name',
            'get_group_id', 'get_all_group_names', 'get_all_group_ids', 'get_all_groups', 'get_members',
            'get_all_account_names', 'get_all_account_ids', 'get_all_accounts', 'get_groups_and_members',
 
