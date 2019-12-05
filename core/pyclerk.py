@@ -19,6 +19,8 @@ from core import path as pc_path
 from core.assertions import (assert_exists, assert_is_dir, assert_is_file, assert_not_exists, assert_valid_arg)
 from core.constants import *
 from core.exceptions import IllegalArgumentError
+from core.parties_and_permissions import *
+from core.shortcuts import *
 
 _pathcrumbs = [os.getcwd()]
 
@@ -168,18 +170,18 @@ def get_basename(of_path: str) -> str:
 	return pc_path.basename(of_path)
 
 
-def get_ext(file_path: str) -> str:
-	assert_exists(file_path)
-	return pc_path.ext(file_path)
+def get_ext(of_file: str) -> str:
+	assert_exists(of_file)
+	return pc_path.ext(of_file)
 
 
-def get_kind(item: str) -> str:
-	if is_dir(item):
+def get_kind(of_item: str) -> str:
+	if is_dir(of_item):
 		return 'directory'
-	elif is_alias(item):
+	elif is_alias(of_item):
 		return 'alias'
 	else:
-		return pc_path.ext(item)[1:]
+		return pc_path.ext(of_item)[1:]
 
 
 def get_size(of_item: str = '.', unit: str = 'b', precision: int = 1) -> tuple:
