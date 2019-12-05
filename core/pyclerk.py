@@ -391,7 +391,7 @@ def traverse_files(of_dir: str = '.', include_hidden: bool = True, skip_empty: b
 		yield directory, files
 
 
-def search(for_name: str, in_dir: str = '.', max_depth: int = INF, similarity=0.5) -> list:
+def search(for_name: str, in_dir: str = '.', max_depth: int = INF, similarity: float = 0.5) -> list:
 	matches = []
 	for directory, contents in traverse_contents(of_dir=in_dir, max_depth=max_depth, skip_empty=True):
 		for item in contents:
@@ -611,7 +611,8 @@ def _check_perms(of_party: Parties, for_item: str) -> str:
 	party_perms = PERMISSION_MODES[of_party]
 	can_read = bool(current_perms & party_perms[Permissions.READ_ONLY])
 	can_write = bool(current_perms & party_perms[Permissions.WRITE_ONLY])
-	can_execute = bool(current_perms & party_perms[Permissions.EXECUTE])
+	# can_execute = bool(current_perms & party_perms[Permissions.EXECUTE])
+	# TODO: add execute permissions to Permissions, implement logic below
 
 	if can_read and can_write:
 		return Permissions.READ_AND_WRITE
