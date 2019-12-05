@@ -23,11 +23,9 @@ def cleanup(path: str) -> str:
 
 def reorient(path: str) -> str:
 	if OPERATING_SYSTEM == 'Windows':
-		path = path.replace('/', '\\').rstrip('\\')
+		return path.replace('/', '\\').rstrip('\\')
 	else:
-		path = path.replace('\\', '/').rstrip('/')
-
-	return path
+		return path.replace('\\', '/').rstrip('/')
 
 
 def merge(path1: str, path2: str, *paths: str) -> str:
@@ -52,10 +50,7 @@ def join(*subpaths: str) -> str:
 
 def split(path: str) -> list:
 	split_path = [directory for directory in path.split('/') if directory != '']
-	if path.startswith('/'):
-		split_path = ['/'] + split_path
-
-	return split_path
+	return ['/'] + split_path if path.startswith('/') else split_path
 
 
 def bisect(path: str, at_index: int or str = -1) -> tuple:
@@ -93,11 +88,9 @@ def replace(subpath: str, with_path: str, in_path: str) -> str:
 		raise IllegalArgumentError()
 
 	# subpath, with_path, in_path = (cleanup(path) for path in [subpath, with_path, in_path])
-	chopped_path = in_path.split(subpath)
-	chopped_path.insert(1, with_path)
-
-	new_path = join(*chopped_path)
-	return new_path
+	split_path = in_path.split(subpath)
+	split_path.insert(1, with_path)
+	return join(*split_path)
 
 
 def insert(subpath: str, at_index: int or str, in_path: str) -> str:
@@ -182,14 +175,12 @@ def reveal(path: str) -> str:
 		return path
 
 	path_base = base(path)
-	revealed_path = path.replace(path_base, path_base[1:])
-	return revealed_path
+	return path.replace(path_base, path_base.lstrip('.'))
 
 
 def rename(path: str, to: str) -> str:
 	path_trail = trail(path)
-	new_path = cat(path_trail, base(of_path=to))
-	return new_path
+	return cat(path_trail, base(of_path=to))
 
 
 def change_base(of_path: str, to: str) -> str:
@@ -208,25 +199,22 @@ def change_ext(of_file: str, new_ext: str) -> str:
 		new_ext = '.' + new_ext
 
 	if has_ext(of_file):
-		new_file_path = of_file.replace(ext(of_file), new_ext)
+		return of_file.replace(ext(of_file), new_ext)
 	else:
-		new_file_path = of_file + new_ext
-
-	return new_file_path
+		return of_file + new_ext
 
 
 def increment_base(path: str) -> str:
 	path_trail, path_base, path_ext = deconstruct(path)
 	copy_pattern = r' \d+$'
 	previous_copy_number = search(copy_pattern, path_base)
-	if previous_copy_number:
+	if previous_copy_number is not None:
 		new_copy_number = ' ' + str(int(previous_copy_number.group(0)) + 1)
 		new_base = sub(copy_pattern, new_copy_number, path_base)
 	else:
 		new_base = path_base + ' 1'
 
-	new_path = cat(path_trail, new_base + path_ext)
-	return new_path
+	return cat(path_trail, new_base + path_ext)
 
 
 def deconstruct(path: str) -> Tuple[str, str, str]:
@@ -253,5 +241,5 @@ def has_ext(path: str) -> bool:
 __all__ = ['cleanup', 'reorient', 'merge', 'cat', 'join', 'split', 'bisect', 'strip', 'strip_root', 'strip_trail',
            'strip_base', 'strip_ext', 'replace', 'insert', 'append', 'pop', 'ltrim', 'rtrim', 'root', 'trail', 'base',
            'basename', 'ext', 'subpath', 'depth', 'index', 'hide', 'match', 'reveal', 'search', 'sub', 'rename',
-           'change_base', 'change_basename', 'change_ext', 'increment_base', 'is_hidden', 'is_in_path', 'is_subpath',
-           'has_ext']
+           'change_base', 'change_basename', 'change_ext', 'increment_base', 'deconstruct', 'is_hidden', 'is_in_path',
+           'is_subpath', 'has_ext']
