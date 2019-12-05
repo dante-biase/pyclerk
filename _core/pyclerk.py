@@ -15,12 +15,12 @@ from zipfile import ZipFile
 
 from psutil import disk_partitions
 
-from core import path as pc_path
-from core.assertions import (assert_exists, assert_is_dir, assert_is_file, assert_not_exists, assert_valid_arg)
-from core.constants import *
-from core.exceptions import IllegalArgumentError
-from core.parties_and_permissions import *
-from core.shortcuts import *
+from _core import path as pc_path
+from _core.assertions import (assert_exists, assert_is_dir, assert_is_file, assert_not_exists, assert_valid_arg)
+from _core.constants import *
+from _core.exceptions import IllegalArgumentError
+from _core.parties_and_permissions import *
+from _core.shortcuts import *
 
 _pathcrumbs = [os.getcwd()]
 

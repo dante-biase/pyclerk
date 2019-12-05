@@ -2,8 +2,8 @@ from os.path import isdir, isfile, exists
 from pathlib import Path
 from typing import NoReturn
 
-from core.exceptions import NotAFileError, IsAFileError, IllegalArgumentError
-from core.path import is_in_path
+from _core.exceptions import NotAFileError, IsAFileError, IllegalArgumentError
+from _core.path import is_in_path
 
 
 def assert_true(*tests: bool, else_raise: Exception, error_message: str):

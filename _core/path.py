@@ -2,7 +2,7 @@ from os import path as os_path
 from pathlib import Path as __Path
 from re import match, search, sub
 
-from core.exceptions import IllegalArgumentError
+from _core.exceptions import IllegalArgumentError
 from .constants import CIPC, OPERATING_SYSTEM
 
 

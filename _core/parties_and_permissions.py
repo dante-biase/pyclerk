@@ -3,7 +3,7 @@ from stat import (
 	S_IRGRP, S_IROTH, S_IRUSR, S_IRWXG, S_IRWXO, S_IRWXU, S_IWGRP, S_IWOTH, S_IWUSR, S_IXGRP, S_IXOTH, S_IXUSR
 )
 
-from core.constants import ClassBehaviorBlocker
+from _core.constants import ClassBehaviorBlocker
 
 
 class Parties(Enum):

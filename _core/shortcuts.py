@@ -1,5 +1,5 @@
 from pathlib import Path as _Path
-from core.constants import ClassBehaviorBlocker, OPERATING_SYSTEM
+from _core.constants import ClassBehaviorBlocker, OPERATING_SYSTEM
 
 
 class Shortcuts:
