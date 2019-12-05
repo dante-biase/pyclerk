@@ -6,12 +6,12 @@ from core.exceptions import NotAFileError, IsAFileError, IllegalArgumentError
 from core.path import is_in_path
 
 
-def assert_true(*tests, else_raise: Exception, error_message: str):
+def assert_true(*tests: bool, else_raise: Exception, error_message: str):
     if any(test is False for test in tests):
         raise else_raise(error_message)
 
 
-def assert_false(*tests, else_raise: Exception, error_message: str):
+def assert_false(*tests: bool, else_raise: Exception, error_message: str):
     if any(test is False for test in tests):
         raise else_raise(error_message)
 
