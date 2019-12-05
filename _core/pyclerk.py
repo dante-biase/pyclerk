@@ -16,9 +16,9 @@ from zipfile import ZipFile
 from psutil import disk_partitions
 
 from _core import path as pc_path
-from _core.assertions import (assert_exists, assert_is_dir, assert_is_file, assert_not_exists, assert_valid_arg)
+from _core.assertions import *
 from _core.constants import *
-from _core.exceptions import IllegalArgumentError
+from _core.exceptions import *
 from _core.parties_and_permissions import *
 from _core.shortcuts import *
 
@@ -97,7 +97,7 @@ def is_alias(item: str) -> bool:
 
 
 def is_empty(dir_path: str = '.') -> bool:
-	return not bool(get_contents(dir_path))
+	return get_contents(dir_path) is not None
 
 
 def has_ext(item: str) -> bool:
@@ -111,7 +111,7 @@ def is_in_path(item: str) -> bool:
 
 def item_in_dir(item_name: str, dir_path: str = '.', check_subfolders: bool = False) -> bool:
 	if check_subfolders:
-		return bool(find(item_name, in_dir=dir_path))
+		return find(item_name, in_dir=dir_path) is not None
 	else:
 		return item_name.lower() in [file.lower() for file in get_contents(of_dir=dir_path)]
 
