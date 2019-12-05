@@ -1,2 +1,2 @@
-from core.path import *
+from _core.path import *
 
