@@ -201,7 +201,7 @@ def deconstruct(path: str) -> Tuple[str, str, str]:
 	return trail(path), basename(path), ext(path)
 
 
-def is_legal(path):
+def is_legal(path: str) -> bool:
 	return not (
 			any(has_ext(item) for item in path.split("/")[:-1]) and
 			UMIPS not in path
