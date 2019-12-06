@@ -8,63 +8,42 @@ from .constants import UMIPS, THIS_OPERATING_SYSTEM
 
 
 def cleanup(path: str) -> str:
-	if THIS_OPERATING_SYSTEM == 'Windows':
-		path = sub(r'\\+', r'\\', path).rstrip('\\')
-		if path != '\\':
-			path = path.rstrip('\\')
-
-	else:
-		path = sub('//+', '/', path)
-		if path != '/':
-			path = path.rstrip('/')
-
-	return path
+	path = sub('//+', '/', path).replace(' ', '').strip()
+	return path.rstrip("/") if has_ext(path) else path
 
 
 def reorient(path: str) -> str:
-	if THIS_OPERATING_SYSTEM == 'Windows':
-		return path.replace('/', '\\').rstrip('\\')
-	else:
-		return path.replace('\\', '/').rstrip('/')
+	return path.replace('\\', '/')
 
 
 def merge(path1: str, path2: str, *paths: str) -> str:
-	merged = os_path.join(path1.strip(), path2.strip())
-	if not merged == '/':
-		merged = merged.rstrip('/')
+	return cleanup(_merge(path1, path2, *paths))
 
+
+def _merge(path1: str, path2: str, *paths: str) -> str:
+	merged = os_path.join(path1, path2)
 	return merge(merged, *paths) if paths else merged
 
 
 def cat(path1: str, path2: str, *paths: str) -> str:
-	catted = merge(path1.strip('/'), path2.strip('/'))
-	if path1.startswith('/'):
-		catted = '/' + catted
-	return cat(catted, *paths) if paths else catted
+	return cleanup('/'.join([path1, path2, *paths]))
 
 
 def join(subpaths: List[str]) -> str:
-	subpaths = [subpath for subpath in subpaths if subpath != '']
 	return cleanup(subpaths[0]) if len(subpaths) == 1 else cat(*tuple(subpaths))
 
 
 def split(path: str) -> list:
-	split_path = [directory for directory in path.split('/') if directory != '']
+	split_path = [item for item in cleanup(path).split('/') if item != '']
 	return ['/'] + split_path if path.startswith('/') else split_path
 
 
 def bisect(path: str, at_index: int or str = -1) -> tuple:
 	if type(at_index) == str:
 		at_index = index(at_index, path)
-	if not (0 < abs(at_index) < depth(path)):
-		raise IllegalArgumentError()
 
 	dirs = split(path)
 	return join(*dirs[:at_index]), join(*dirs[at_index:])
-
-
-def strip(subpath: str, from_path: str) -> str:
-	return replace(subpath, '', from_path)
 
 
 def strip_root(of_path: str) -> str:
@@ -84,32 +63,30 @@ def strip_ext(of_path: str) -> str:
 
 
 def replace(subpath: str, with_path: str, in_path: str) -> str:
-	if not is_subpath(subpath, in_path):
-		raise IllegalArgumentError()
-
-	# subpath, with_path, in_path = (cleanup(path) for path in [subpath, with_path, in_path])
 	split_path = in_path.split(subpath)
 	split_path.insert(1, with_path)
 	return join(split_path)
 
 
 def insert(subpath: str, at_index: int or str, in_path: str) -> str:
+	if type(at_index) == str:
+		at_index == index(of_item=at_index, in_path=subpath)
+
 	split_path = split(in_path)
 	split_path.insert(at_index, subpath)
 	return join(*split_path)
 
 
 def append(subpath: str, to_path: str) -> str:
-	return cat(to_path, subpath)
+	return cat(path1=to_path, path2=subpath)
 
 
-def pop(path, at_index: int = -1) -> str:
-	if not abs(at_index) <= depth(path):
-		raise IllegalArgumentError()
+def remove(subpath: str, from_path: str) -> str:
+	return replace(subpath, '', from_path)
 
-	path = split(path)
-	path.pop(at_index)
-	return join(*path)
+
+def pop(path: str, at_index: int = -1) -> str:
+	return split(path).pop(at_index)
 
 
 def ltrim(path: str, by: int = 1) -> str:
@@ -144,13 +121,16 @@ def ext(of_file_path: str) -> str:
 	return file_ext if file_ext != '' else None
 
 
-def subpath(of_path: str, start: int or str, end: str or None = None) -> str:
-	if type(start) == str:
-		start = index(start, in_path=of_path)
-	if type(end) == str:
-		end = index(end, in_path=of_path)
+def subpath(of_path: str, start: int or str or None = None, end: int or str or None = None) -> str:
+	if start == end:
+		return ''
+	else:
+		if type(start) == str:
+			start = index(start, in_path=of_path)
+		if type(end) == str:
+			end = index(end, in_path=of_path)
 
-	return join(*split(of_path)[start:end])
+		return join(split(of_path)[start:end])
 
 
 def depth(of_path: str) -> int:
@@ -221,6 +201,13 @@ def deconstruct(path: str) -> Tuple[str, str, str]:
 	return trail(path), basename(path), ext(path)
 
 
+def is_legal(path):
+	return not (
+			any(has_ext(item) for item in path.split("/")[:-1]) and
+			UMIPS not in path
+	)
+
+
 def is_hidden(path: str) -> bool:
 	return base(path).startswith('.')
 
@@ -238,8 +225,8 @@ def has_ext(path: str) -> bool:
 	return ext(path) is not None
 
 
-__all__ = ['cleanup', 'reorient', 'merge', 'cat', 'join', 'split', 'bisect', 'strip', 'strip_root', 'strip_trail',
-           'strip_base', 'strip_ext', 'replace', 'insert', 'append', 'pop', 'ltrim', 'rtrim', 'root', 'trail', 'base',
+__all__ = ['cleanup', 'reorient', 'merge', 'cat', 'join', 'split', 'bisect', 'strip_root', 'strip_trail',
+           'strip_base', 'strip_ext', 'replace', 'insert', 'append', 'remove', 'ltrim', 'rtrim', 'root', 'trail', 'base',
            'basename', 'ext', 'subpath', 'depth', 'index', 'hide', 'reveal', 'sub', 'rename',
-           'change_base', 'change_basename', 'change_ext', 'increment_base', 'deconstruct', 'is_hidden', 'is_in_path',
-           'is_subpath', 'has_ext']
+           'change_base', 'change_basename', 'change_ext', 'increment_base', 'deconstruct', 'is_legal',
+           'is_hidden', 'is_in_path', 'is_subpath', 'has_ext']
