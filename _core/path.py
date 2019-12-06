@@ -29,7 +29,7 @@ def reorient(path: str) -> str:
 
 
 def merge(path1: str, path2: str, *paths: str) -> str:
-	merged = os_path.join(*path1.strip(), path2.strip())
+	merged = os_path.join(path1.strip(), path2.strip())
 	if not merged == '/':
 		merged = merged.rstrip('/')
 
