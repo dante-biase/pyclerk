@@ -19,7 +19,7 @@ UNIT_CONVERSION_MAP = {
 
 UNIT_CONVERSION_MAP_REVERSED = {v: k for k, v in UNIT_CONVERSION_MAP.items()}
 
-CIPC = ':NUL:' # common illegal path code
+UMIPS = ':NUL:'  # universal-machine-illegal-path-string
 
 
 class ClassBehaviorBlocker:

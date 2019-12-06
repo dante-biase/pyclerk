@@ -1,10 +1,10 @@
 from os import path as os_path
 from pathlib import Path as __Path
 from re import search, sub
-from typing import Tuple
+from typing import Tuple, List
 
 from _core.exceptions import IllegalArgumentError
-from .constants import CIPC, THIS_OPERATING_SYSTEM
+from .constants import UMIPS, THIS_OPERATING_SYSTEM
 
 
 def cleanup(path: str) -> str:
@@ -43,9 +43,9 @@ def cat(path1: str, path2: str, *paths: str) -> str:
 	return cat(catted, *paths) if paths else catted
 
 
-def join(*subpaths: str) -> str:
+def join(subpaths: List[str]) -> str:
 	subpaths = [subpath for subpath in subpaths if subpath != '']
-	return cat(*tuple(subpaths)) if len(subpaths) != 1 else cleanup(subpaths[0])
+	return cleanup(subpaths[0]) if len(subpaths) == 1 else cat(*tuple(subpaths))
 
 
 def split(path: str) -> list:
@@ -230,8 +230,8 @@ def is_in_path(item_name: str, path: str) -> bool:
 
 
 def is_subpath(path: str, of_path: str) -> bool:
-	of_path = of_path.replace(path.strip('/'), CIPC)
-	return CIPC in split(of_path)
+	test_path = of_path.replace(path.strip('/'), UMIPS)
+	return UMIPS in split(test_path)
 
 
 def has_ext(path: str) -> bool:
