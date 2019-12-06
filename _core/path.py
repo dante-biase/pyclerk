@@ -1,6 +1,6 @@
 from os import path as os_path
 from pathlib import Path as __Path
-from re import match, search, sub
+from re import search, sub
 from typing import Tuple
 
 from _core.exceptions import IllegalArgumentError
@@ -240,6 +240,6 @@ def has_ext(path: str) -> bool:
 
 __all__ = ['cleanup', 'reorient', 'merge', 'cat', 'join', 'split', 'bisect', 'strip', 'strip_root', 'strip_trail',
            'strip_base', 'strip_ext', 'replace', 'insert', 'append', 'pop', 'ltrim', 'rtrim', 'root', 'trail', 'base',
-           'basename', 'ext', 'subpath', 'depth', 'index', 'hide', 'match', 'reveal', 'search', 'sub', 'rename',
+           'basename', 'ext', 'subpath', 'depth', 'index', 'hide', 'reveal', 'sub', 'rename',
            'change_base', 'change_basename', 'change_ext', 'increment_base', 'deconstruct', 'is_hidden', 'is_in_path',
            'is_subpath', 'has_ext']
