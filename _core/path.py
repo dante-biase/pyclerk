@@ -90,7 +90,7 @@ def replace(subpath: str, with_path: str, in_path: str) -> str:
 	# subpath, with_path, in_path = (cleanup(path) for path in [subpath, with_path, in_path])
 	split_path = in_path.split(subpath)
 	split_path.insert(1, with_path)
-	return join(*split_path)
+	return join(split_path)
 
 
 def insert(subpath: str, at_index: int or str, in_path: str) -> str:
