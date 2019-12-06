@@ -1,4 +1,3 @@
-from enum import Enum
 from stat import (
 	S_IRGRP, S_IROTH, S_IRUSR, S_IRWXG, S_IRWXO, S_IRWXU, S_IWGRP, S_IWOTH, S_IWUSR, S_IXGRP, S_IXOTH, S_IXUSR
 )
@@ -6,7 +5,7 @@ from stat import (
 from _core.constants import ClassBehaviorBlocker
 
 
-class Parties(Enum):
+class Parties:
 	__metaclass__ = ClassBehaviorBlocker
 
 	USER = 0

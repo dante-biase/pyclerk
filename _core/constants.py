@@ -1,7 +1,7 @@
 from math import inf as _inf
 from platform import system as _system
 
-OPERATING_SYSTEM = _system()
+THIS_OPERATING_SYSTEM = _system()
 
 INF = _inf
 

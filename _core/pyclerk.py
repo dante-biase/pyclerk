@@ -30,7 +30,7 @@ def run(command: str) -> str:
 
 
 def get_os() -> str:
-	return OPERATING_SYSTEM
+	return THIS_OPERATING_SYSTEM
 
 
 def get_cwd() -> str:

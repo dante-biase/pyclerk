@@ -4,11 +4,11 @@ from re import search, sub
 from typing import Tuple
 
 from _core.exceptions import IllegalArgumentError
-from .constants import CIPC, OPERATING_SYSTEM
+from .constants import CIPC, THIS_OPERATING_SYSTEM
 
 
 def cleanup(path: str) -> str:
-	if OPERATING_SYSTEM == 'Windows':
+	if THIS_OPERATING_SYSTEM == 'Windows':
 		path = sub(r'\\+', r'\\', path).rstrip('\\')
 		if path != '\\':
 			path = path.rstrip('\\')
@@ -22,7 +22,7 @@ def cleanup(path: str) -> str:
 
 
 def reorient(path: str) -> str:
-	if OPERATING_SYSTEM == 'Windows':
+	if THIS_OPERATING_SYSTEM == 'Windows':
 		return path.replace('/', '\\').rstrip('\\')
 	else:
 		return path.replace('\\', '/').rstrip('/')
