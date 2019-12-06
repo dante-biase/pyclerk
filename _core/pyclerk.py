@@ -394,7 +394,7 @@ def traverse_files(of_dir: str = '.', include_hidden: bool = True, skip_empty: b
 		yield directory, files
 
 
-def search(for_name: str, in_dir: str = '.', max_depth: int = INF, similarity: float = 0.5) -> List[str]:
+def search(for_name: str, in_dir: str = '.', max_depth: int = INF, similarity: float = 0.5) -> List[Tuple[str, str]]:
 	matches = []
 	for directory, contents in traverse_contents(of_dir=in_dir, max_depth=max_depth, skip_empty=True):
 		for item in contents:
