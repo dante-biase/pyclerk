@@ -190,7 +190,7 @@ def get_size(of_item: str = '.', unit: str = 'by', precision: int = 1) -> Tuple[
 
 	item_full_path = get_full_path(of_item)
 	item_trail = pc_path.trail(item_full_path)
-	file_size_in_bytes, unit = os_path.getsize(of_item), unit.upper()
+	file_size_in_bytes = os_path.getsize(of_item)
 	if is_dir(item_full_path):
 		for directory, contents in traverse_contents(item_full_path):
 			dir_path = pc_path.merge(item_trail, directory)
@@ -202,12 +202,12 @@ def get_size(of_item: str = '.', unit: str = 'by', precision: int = 1) -> Tuple[
 				except FileNotFoundError:
 					pass
 
-	if unit == 'AUTO':
+	if unit == 'auto':
 		unit_factor = int(log(file_size_in_bytes) / log(1024))
 		unit = UNIT_CONVERSION_MAP.get(unit_factor, 4)
 
 	converted_size = round(float(
-			file_size_in_bytes / (1024 ** UNIT_CONVERSION_MAP_REVERSED.get(unit, 'TB'))
+			file_size_in_bytes / (1024 ** UNIT_CONVERSION_MAP_REVERSED.get(unit, 'tb'))
 	), precision)
 
 	return converted_size, unit
