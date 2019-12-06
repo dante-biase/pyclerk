@@ -204,10 +204,11 @@ def get_size(of_item: str = '.', unit: str = 'by', precision: int = 1) -> Tuple[
 
 	if unit == 'AUTO':
 		unit_factor = int(log(file_size_in_bytes) / log(1024))
-		UNIT_CONVERSION_MAP.get(unit_factor, 4)
+		unit = UNIT_CONVERSION_MAP.get(unit_factor, 4)
 
-	converted_size = round(float(file_size_in_bytes / (1024 ** UNIT_CONVERSION_MAP_REVERSED.get(unit, 'TB'))),
-	                       precision)
+	converted_size = round(float(
+			file_size_in_bytes / (1024 ** UNIT_CONVERSION_MAP_REVERSED.get(unit, 'TB'))
+	), precision)
 
 	return converted_size, unit
 
