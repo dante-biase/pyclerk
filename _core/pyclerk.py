@@ -10,7 +10,7 @@ from pwd import getpwall, getpwnam, getpwuid
 from subprocess import call
 from subprocess import run as __run
 from types import GeneratorType
-from typing import NoReturn, Tuple, List
+from typing import NoReturn, Tuple, List, Dict
 from zipfile import ZipFile
 
 from psutil import disk_partitions
@@ -30,7 +30,7 @@ def run(command: str) -> str:
 
 
 def get_os() -> str:
-	return THIS_OPERATING_SYSTEM
+	return THIS_OPERATING_SYSTEM_NAME
 
 
 def get_cwd() -> str:
@@ -193,11 +193,11 @@ def get_size(of_item: str = '.', unit: str = 'by', precision: int = 1) -> Tuple[
 	file_size_in_bytes = os_path.getsize(of_item)
 	if is_dir(item_full_path):
 		for directory, contents in traverse_contents(item_full_path):
-			dir_path = pc_path.merge(item_trail, directory)
+			dir_path = pc_path.cat(item_trail, directory)
 			file_size_in_bytes += os_path.getsize(of_item)
 			for file in contents:
 				try:
-					file_size_in_bytes += os_path.getsize(pc_path.merge(dir_path, file))
+					file_size_in_bytes += os_path.getsize(pc_path.cat(dir_path, file))
 
 				except FileNotFoundError:
 					pass
@@ -236,7 +236,7 @@ def new_files(names: iter, in_dir: str = '.', mode: str = 'x', hidden: bool = Fa
 def delete(item: str, *items: str, from_dir='.') -> NoReturn:
 	for file in (item, *items):
 		try:
-			file = pc_path.merge(from_dir, file)
+			file = pc_path.cat(from_dir, file)
 			if is_dir(file):
 				shutil.rmtree(file, ignore_errors=True)
 			else:
@@ -271,7 +271,7 @@ def move_items(items: iter, to_dir: str, mode: str = 'x') -> List[str]:
 
 
 def move_contents(of_dir: str, to_dir: str, mode: str = 'x') -> List[str]:
-	dir_contents = tuple([pc_path.merge(of_dir, item) for item in get_contents(of_dir)])
+	dir_contents = tuple([pc_path.cat(of_dir, item) for item in get_contents(of_dir)])
 	return move_items(*dir_contents, to_dir=to_dir, mode=mode)
 
 
@@ -295,7 +295,7 @@ def copy_items(items: iter, to_dir: str, mode: str = 'x') -> List[str]:
 
 
 def copy_contents(of_dir: str, to_dir: str, mode: str = 'x') -> List[str]:
-	dir_contents = tuple([pc_path.merge(of_dir, item) for item in get_contents(of_dir)])
+	dir_contents = tuple([pc_path.cat(of_dir, item) for item in get_contents(of_dir)])
 	return copy_items(*dir_contents, to_dir=to_dir, mode=mode)
 
 
@@ -428,30 +428,28 @@ def find_all(items_with_name: str, in_dir: str = '.', max_depth: int = INF) -> L
 	return matches
 
 
-def check_perms(of_item: str, of_party: Parties = Parties.USER) -> str:
-	if of_party == Parties.ALL:
+def check_perms(of_item: str, of_party: Party = Party.USER) -> Permission:
+	if of_party == Party.ALL:
 		perms = list(check_all_perms(of_item).values())
-		if all(perm == perms[0] for perm in perms):
+		all_perms_equal = all(perm == perms[0] for perm in perms)
+		if all_perms_equal:
 			return perms[0]
 		else:
-			return Permissions.MIXED
+			return Permission.MIXED
 	else:
 		return _check_perms(of_party, for_item=of_item)
 
 
-def check_all_perms(of_item: str) -> dict:
-	perms = {}
-	for party in Parties.members():
-		perms[party.name] = _check_perms(of_party=party, for_item=of_item)
-	return perms
+def check_all_perms(of_item: str) -> Dict[Party, Permission]:
+	return {party: _check_perms(of_party=party, for_item=of_item) for party in Party.members()}
 
 
-def change_perms(of_item: str, to_perm: Permissions, for_party: Parties = Parties.USER,
+def change_perms(of_item: str, to_perm: Permission, for_party: Party = Party.USER,
                  recursively: bool = False) -> NoReturn:
-	if to_perm == Permissions.MIXED:
+	if to_perm == Permission.MIXED:
 		raise IllegalArgumentError()
-
-	_change_perms(of_item, to_perm, for_party, recursively)
+	else:
+		_change_perms(of_item, to_perm, for_party, recursively)
 
 
 def check_owner(of_item: str):
@@ -555,7 +553,7 @@ def _preprocess(item: str, destination: str, mode: str, make_hidden: bool = Fals
 	assert_valid_arg(mode, VALID_MODES)
 	destination = str(Path(destination).resolve())
 	item_base = pc_path.base(item)
-	target_path = pc_path.merge(destination, item_base)
+	target_path = pc_path.cat(destination, item_base)
 
 	if make_hidden:
 		target_path = pc_path.hide(target_path)
@@ -610,38 +608,29 @@ def _generate_contents(of_dir: str, include_hidden: bool, skip_empty: bool, max_
 	)
 
 
-def _check_perms(of_party: Parties, for_item: str) -> str:
+def _check_perms(of_party: Party, for_item: str) -> Permission:
 	current_perms = stat.S_IMODE(os.stat(for_item).st_mode)
-	party_perms = PERMISSION_MODES[of_party]
-	can_read = bool(current_perms & party_perms[Permissions.READ_ONLY])
-	can_write = bool(current_perms & party_perms[Permissions.WRITE_ONLY])
-	# can_execute = bool(current_perms & party_perms[Permissions.EXECUTE])
-	# TODO: add execute permissions to Permissions, implement logic below
+	can_read = bool(current_perms & Permission.CODES[Permission.READ_ONLY][of_party])
+	can_write = bool(current_perms & Permission.CODES[Permission.WRITE_ONLY][of_party])
+	can_execute = bool(current_perms & Permission.CODES[Permission.EXECUTE_ONLY][of_party])
 
-	if can_read and can_write:
-		return Permissions.READ_AND_WRITE
-	elif can_read:
-		return Permissions.READ_ONLY
-	elif can_write:
-		return Permissions.WRITE_ONLY
-	else:
-		return Permissions.NO_ACCESS
+	return Permission.match(can_read, can_write, can_execute)
 
 
-def _change_perms(of_item: str, to_perm: Permissions, for_party: Parties, recursively: bool) -> NoReturn:
+def _change_perms(of_item: str, to_perm: Permission, for_party: Party, recursively: bool) -> NoReturn:
 	_change_item_perms(of_item, to_perm, for_party)
 
 	if recursively and os_path.isdir(of_item):
 		for directory, contents in os.walk(of_item):
 			_change_item_perms(of_item=directory, to_perm=to_perm, for_party=for_party)
 			for item in contents:
-				_change_item_perms(of_item=pc_path.merge(directory, item), to_perm=to_perm, for_party=for_party)
+				_change_item_perms(of_item=pc_path.cat(directory, item), to_perm=to_perm, for_party=for_party)
 
 
-def _change_item_perms(of_item: str, to_perm: Permissions, for_party: Parties) -> NoReturn:
+def _change_item_perms(of_item: str, to_perm: Permission, for_party: Party) -> NoReturn:
 	current_perms = stat.S_IMODE(os.stat(of_item).st_mode)
-	party_mask = PERMISSION_BIT_MASKS[for_party]
-	new_perm = PERMISSION_MODES[for_party][to_perm]
+	party_mask = Permission.MASKS[for_party]
+	new_perm = Permission.CODES[to_perm][for_party]
 	os.chmod(of_item, (current_perms & ~party_mask) | new_perm)
 
 
@@ -664,5 +653,5 @@ __all__ = ['run', 'get_os', 'get_cwd', 'get_cpd', 'go_to', 'step_back', 'go_back
            'get_group_id', 'get_all_group_names', 'get_all_group_ids', 'get_all_groups', 'get_members',
            'get_all_account_names', 'get_all_account_ids', 'get_all_accounts', 'get_groups_and_members',
 
-           'Parties', 'Permissions', 'Shortcuts'
+           'Party', 'Permission', 'Shortcuts'
            ]

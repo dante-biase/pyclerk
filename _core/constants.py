@@ -1,7 +1,7 @@
 from math import inf as _inf
 from platform import system as _system
 
-THIS_OPERATING_SYSTEM = _system()
+THIS_OPERATING_SYSTEM_NAME = _system()
 
 INF = _inf
 
@@ -19,10 +19,22 @@ UNIT_CONVERSION_MAP = {
 
 UNIT_CONVERSION_MAP_REVERSED = {v: k for k, v in UNIT_CONVERSION_MAP.items()}
 
-UMIPS = ':NUL:'  # universal-machine-illegal-path-string
+if THIS_OPERATING_SYSTEM_NAME == 'Windows':
+	FORBIDDEN_PATH_CHARS = {'/', ':', '*', '?', "\"", '<', '>', '|'}
+elif THIS_OPERATING_SYSTEM_NAME == 'Darwin':
+	FORBIDDEN_PATH_CHARS = {':'}
+elif THIS_OPERATING_SYSTEM_NAME == 'Unix':
+	# TODO:
+	pass
+else:
+	# TODO:
+	pass
+
+
+UNIVERSAL_FORBIDDEN_PATH_CHAR = ':'
 
 
 class ClassBehaviorBlocker:
 
 	def __setattr__(self, key, value):
-		return
+		raise AttributeError()

@@ -1,16 +1,15 @@
 from pathlib import Path as _Path
-from _core.constants import ClassBehaviorBlocker, THIS_OPERATING_SYSTEM
+
+from _core.constants import THIS_OPERATING_SYSTEM_NAME
 
 
 class Shortcuts:
-	__metaclass__ = ClassBehaviorBlocker
-
 	HOME = str(_Path().home())
-	if THIS_OPERATING_SYSTEM == 'Windows':
+	if THIS_OPERATING_SYSTEM_NAME == 'Windows':
 		# TODO:
 		pass
 
-	elif THIS_OPERATING_SYSTEM == 'Darwin':
+	elif THIS_OPERATING_SYSTEM_NAME == 'Darwin':
 		RECENTS = HOME + '/Recents'
 		DESKTOP = HOME + '/Desktop'
 		DOCUMENTS = HOME + '/Documents'
@@ -21,7 +20,7 @@ class Shortcuts:
 		USERS = '/Users'
 		TRASH = HOME + '/.Trash'
 
-	elif THIS_OPERATING_SYSTEM == 'Linux':
+	elif THIS_OPERATING_SYSTEM_NAME == 'Linux':
 		# TODO:
 		pass
 
