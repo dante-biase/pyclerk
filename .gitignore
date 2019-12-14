@@ -1,4 +1,6 @@
 __pycache__/
 _core/__pycache__/
 .idea/
-_tests/
+_tests/live_test.py
+_tests/pyclerk_test.py
+
