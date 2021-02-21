@@ -22,9 +22,7 @@ def reorient(path: str) -> str:
 
 def cat(path1: str, path2: str, *paths: str) -> str:
 	inputs = list(filter(None, [path1, path2, *paths]))
-	return cleanup(
-			path_s='/'.join(inputs)
-	)
+	return cleanup('/'.join(inputs))
 
 
 def join(subpaths: List[str]) -> str:
@@ -50,31 +48,22 @@ def bisect(path: str, at: int or str = -1) -> Tuple[str, str]:
 	return join(split_path[:at]), join(split_path[at:])
 
 
-def strip_root(of_path: str) -> str:
-	return cleanup(
-			path_s=of_path.replace(root(of_path), '', 1).lstrip('/')
-	)
+def strip_root(path: str) -> str:
+	path = path.replace(root(path), '', 1).lstrip('/')
+	return cleanup(path)
+
+def strip_trail(path: str) -> str:
+	path = base(path)
+	return base(path)
 
 
-def strip_trail(of_path: str) -> str:
-	return cleanup(
-			path_s=of_path.replace(trail(of_path), '', 1)
-	).lstrip('/')
+def strip_base(path: str) -> str:
+	return trail(path)
 
 
-def strip_base(of_path: str) -> str:
-	return cleanup(
-			path_s=of_path.replace(base(of_path), '', 1)
-	)
-
-
-def strip_ext(of_path: str) -> str:
-	of_path = cleanup(path_s=of_path)
-	ext_of_path = ext(of_path)
-	if ext_of_path is None:
-		return of_path
-	else:
-		return of_path.replace(ext_of_path, '')
+def strip_ext(path: str) -> str:
+	path = cleanup(path_s=path)
+	return re.sub(f'{ext(path)}$', '', path)
 
 
 def replace(subpath: str, with_path: str, in_path: str) -> str:
@@ -128,64 +117,44 @@ def rtrim(path: str, by: int = 1) -> str:
 		return bisect(path, -(by + 1))[0]
 
 
-def root(of_path: str) -> str or None:
-	if of_path == '':
-		return None
+def root(path: str) -> str:
+	if path == '':
+		return ''
 	else:
-		of_path = cleanup(of_path)
-		if is_absolute(of_path):
-			return '/'
-		else:
-			return of_path.split('/', 1)[0]
+		path = cleanup(path)
+		return '/' if path == '/' else path.split('/', 1)[0]
 
 
-def trail(of_path: str) -> str or None:
-	if of_path == '':
-		return None
-	else:
-		of_path = cleanup(of_path)
-		return '/' if of_path == '/' else os_path.dirname(of_path)
+def trail(path: str) -> str:
+	path = cleanup(path)
+	return '/' if path == '/' else os_path.dirname(path)
 
 
-def shared_trail(path1: str, path2: str, *paths: str) -> str or None:
+def shared_trail(path1: str, path2: str, *paths: str) -> str:
 	inputs = [cleanup(path) for path in [path1, path2, *paths] if path != '']
-	whats_shared = os_path.commonprefix(inputs)
-	if whats_shared == '':
-		return None
-	else:
-		return whats_shared
+	return os_path.commonprefix(inputs)
 
 
-def base(of_path: str) -> str or None:
-	if _is_empty(of_path):
-		return None
-	else:
-		of_path = cleanup(of_path)
-		return '/' if of_path == '/' else __Path(of_path).name
+def base(path: str) -> str or None:
+	path = cleanup(path)
+	return '/' if path == '/' else __Path(path).name
 
 
-def basename(of_path: str) -> str or None:
-	if _is_empty(of_path):
-		return None
-	else:
-		of_path = cleanup(of_path)
-		return '/' if of_path == '/' else __Path(of_path).stem
+def basename(path: str) -> str:
+	path = cleanup(path)
+	return '/' if path == '/' else __Path(path).stem
 
 
-def ext(of_file: str) -> str or None:
-	if _is_empty(of_file):
-		return None
-	else:
-		file_ext = __Path(cleanup(of_file)).suffix
-		if not file_ext: file_ext = None
-		return file_ext
+def ext(of_file: str) -> str:
+	path = cleanup(of_file)
+	return __Path(path).suffix
 
 
-def subpath(of_path: str, start: int or str or None = None, end: int or str or None = None) -> str:
-	if type(start) == str: start = index(start, in_path=of_path)
-	if type(end) == str: end = index(end, in_path=of_path)
+def subpath(path: str, start: int or str or None = None, end: int or str or None = None) -> str:
+	if type(start) == str: start = index(start, in_path=path)
+	if type(end) == str: end = index(end, in_path=path)
 	return join(
-			split(of_path)[start:end]
+			split(path)[start:end]
 	)
 
 
@@ -198,15 +167,15 @@ def shared_subpath(path1: str, path2: str, *paths: str) -> str or None:
 		return whats_shared
 
 
-def depth(of_path: str) -> int:
-	return len(split(path=of_path))
+def depth(path: str) -> int:
+	return len(split(path=path))
 
 
 def index(of_item: str, in_path: str) -> int:
 	try:
 		return split(path=in_path).index(of_item)
 	except ValueError:
-		if is_subpath(path=of_item, of_path=in_path):
+		if is_subpath(path=of_item, path=in_path):
 			raise ValueError("a path is not indexable by its subpath")
 		else:
 			raise ValueError(f"{of_item} not in {in_path}")
@@ -218,9 +187,9 @@ def hide(path: str) -> str:
 	elif is_hidden(path):
 		return path
 	else:
-		base_of_path = base(of_path=path)
+		base_path = base(path=path)
 		return cleanup(
-				path.replace(base_of_path, '.' + base_of_path)
+				path.replace(base_path, '.' + base_path)
 		)
 
 
@@ -228,25 +197,25 @@ def reveal(path: str) -> str:
 	if not is_hidden(path):
 		return path
 	else:
-		base_of_path = base(of_path=path)
+		base_path = base(path=path)
 		return cleanup(
-				path.replace(base_of_path, base_of_path.lstrip('.'))
+				path.replace(base_path, base_path.lstrip('.'))
 		)
 
 
 def rename(path: str, to: str) -> str:
-	return cat(trail(of_path=path), base(of_path=to))
+	return cat(trail(path=path), base(path=to))
 
 
-def change_base(of_path: str, to: str) -> str:
+def change_base(path: str, to: str) -> str:
 	return cleanup(
-			of_path.replace(base(of_path), to)
+			path.replace(base(path), to)
 	)
 
 
-def change_basename(of_path: str, to: str) -> str:
+def change_basename(path: str, to: str) -> str:
 	return cleanup(
-			of_path.replace(basename(of_path), to)
+			path.replace(basename(path), to)
 	)
 
 
@@ -270,13 +239,13 @@ def increment_base(path: str) -> str:
 
 
 def deconstruct(path: str) -> Tuple[str, str, str]:
-	return trail(of_path=path), basename(of_path=path), ext(of_file=path)
+	return trail(path=path), basename(path=path), ext(of_file=path)
 
 
 def is_legal(path: str) -> bool:
-	path_is_legally_formatted = not any(has_ext(item) for item in split(trail(of_path=path)))
+	path_is_legally_formatted = not any(has_ext(item) for item in split(trail(path=path)))
 	path_contains_no_forbidden_characters = not any(char in path for char in FORBIDDEN_PATH_CHARS)
-	return True if path_is_legally_formatted and path_contains_no_forbidden_characters else False
+	return path_is_legally_formatted and path_contains_no_forbidden_characters
 
 
 def is_absolute(path: str) -> bool:
@@ -288,7 +257,7 @@ def is_relative(path: str) -> bool:
 
 
 def is_hidden(path: str) -> bool:
-	return base(of_path=path).startswith('.')
+	return base(path=path).startswith('.')
 
 
 def is_in_path(subpath: str, path: str) -> bool:
@@ -296,12 +265,12 @@ def is_in_path(subpath: str, path: str) -> bool:
 	return UNIVERSAL_FORBIDDEN_PATH_CHAR in split(test_path)
 
 
-def is_subpath(path: str, of_path: str) -> bool:
+def is_subpath(path: str, path: str) -> bool:
 	if _is_empty(path):
 		return False
 	else:
-		path, of_path = cleanup([path, of_path])
-		return re.match(f'^{path}', of_path) is not None
+		path, path = cleanup([path, path])
+		return re.match(f'^{path}', path) is not None
 
 
 def has_ext(path: str) -> bool:
